@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Equipment xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <License licenseId="" licensePath="" />
+  <Nameable id="Implanter-01" description="Implanter Equipment Sample Model" locator="QFN-12L" alias="ImplanterZeroOne" make="Insphere Technology" model="R5" softwareRev="1.0.0" />
+  <GemConnection protocol="Hsms" deviceId="3">
+    <HSMS connectionMode="Active" linktestInterval="60" localIPAddress="127.0.0.1" localPortNumber="5001" remoteIPAddress="127.0.0.1" remotePortNumber="5000" T3Timeout="45" T5Timeout="10" T6Timeout="5" T7Timeout="10" T8Timeout="5" />
+  </GemConnection>
+  <SecsItemFormats ackc5="Binary" ackc7="Binary" ackc7a="U1" ackc10="Binary" alid="U4" alcd="Binary" altx="Ascii" aled="Binary" attrid="Ascii" ccode="U2" ceid="U4" cpname="Ascii" dataid="U4" dsper="Ascii" errw7="Ascii" loc="Binary" mdln="Ascii" mid="Ascii" objid="Ascii" objspec="Ascii" objtype="Ascii" ppbody="Binary" ppid="Ascii" rcmd="Ascii" repgsz="U4" rptid="U4" seqnum="U2" softrev="Ascii" text="Ascii" tid="Binary" totsmp="U4" trid="U4" svid="U4" ecid="U4" ddid="U4" />
+  <Logger secsLogEnabled="true" smlLogEnabled="true" rolloverOnMidnight="true" rolloverOnSize="false" />
+  <Clock timeFormat="yyyymmddhhmmsscc" />
+  <RemoteCommand>
+    <S2F21>
+      <S2F21Command name="100" logicalName="Start Equipment" />
+      <S2F21Command name="101" logicalName="Stop Equipment" />
+    </S2F21>
+    <S2F41>
+      <S2F41Command name="START_LOT" logicalName="Start Lot">
+        <CommandParameter name="LOT_ID" logicalName="Lot Id" parameterType="Ascii" />
+      </S2F41Command>
+      <S2F41Command name="STOP" logicalName="Stop" />
+      <S2F41Command name="LOT_TRACK_IN" logicalName="Lot TrackIn">
+        <CommandParameter name="LOT_ID" logicalName="LotId" parameterType="Ascii" />
+        <CommandParameter name="START_QTY" logicalName="Quantity" parameterType="U4" />
+      </S2F41Command>
+      <S2F41Command name="LOT_TRACKOUT" logicalName="Lot TrackOut">
+        <CommandParameter name="LOT_ID" logicalName="LotId" parameterType="Ascii" />
+        <CommandParameter name="IN_QTY" logicalName="In Quantity" parameterType="U4" />
+        <CommandParameter name="OUT_QTY" logicalName="Out Quantity" parameterType="U4" />
+        <CommandParameter name="REJECT_QTY" logicalName="Reject Quantity" parameterType="U4" />
+      </S2F41Command>
+    </S2F41>
+  </RemoteCommand>
+  <StatusVariables>
+    <SVID id="200" valueType="U4" logicalName="RobotHome" />
+    <SVID id="201" valueType="U4" logicalName="Potential Energy" />
+    <SVID id="202" valueType="U4" logicalName="ControlState">
+      <MappingValue toolValue="1" logicalValue="Online" />
+      <MappingValue toolValue="2" logicalValue="Offline" />
+    </SVID>
+    <SVID id="203" valueType="U2" logicalName="FaradayPosition" />
+    <SVID id="204" valueType="U4" logicalName="TransferRobotState">
+      <MappingValue toolValue="1" logicalValue="StartMotion" />
+      <MappingValue toolValue="2" logicalValue="Jammed" />
+    </SVID>
+    <SVID id="205" valueType="Ascii" logicalName="MaterialID" />
+    <SVID id="206" valueType="Ascii" logicalName="LotId" />
+    <SVID id="207" valueType="U4" logicalName="ProcessState">
+      <MappingValue toolValue="1" logicalValue="Standby" />
+      <MappingValue toolValue="2" logicalValue="Executing" />
+      <MappingValue toolValue="3" logicalValue="Completed" />
+    </SVID>
+  </StatusVariables>
+  <EquipmentConstants>
+    <ECID id="300" valueType="U4" logicalName="WaferMappingMode">
+      <MappingValue toolValue="1" logicalValue="Enabled" />
+      <MappingValue toolValue="2" logicalValue="Disabled" />
+    </ECID>
+    <ECID id="301" valueType="U1" logicalName="Inkless Mode">
+      <MappingValue toolValue="0" logicalValue="Disabled" />
+      <MappingValue toolValue="1" logicalValue="Enabled" />
+    </ECID>
+    <ECID id="302" valueType="Ascii" logicalName="ProcessBinCode" />
+  </EquipmentConstants>
+  <DataVariables />
+  <DataCollections>
+    <RPTIDs>
+      <RPTID id="100" logicalName="TransferArmStateReport">
+        <ReportVariable id="200" varType="StatusVariable" logicalName="RobotHome" />
+        <ReportVariable id="201" varType="StatusVariable" logicalName="Potential Energy" />
+        <ReportVariable id="202" varType="StatusVariable" logicalName="ControlState" />
+        <ReportVariable id="203" varType="StatusVariable" logicalName="FaradayPosition" />
+        <ReportVariable id="204" varType="StatusVariable" logicalName="TransferRobotState" />
+      </RPTID>
+      <RPTID id="101" logicalName="MaterialReport">
+        <ReportVariable id="205" varType="StatusVariable" logicalName="MaterialID" />
+        <ReportVariable id="207" varType="StatusVariable" logicalName="ProcessState" />
+      </RPTID>
+      <RPTID id="102" logicalName="MaterialCompleted" />
+      <RPTID id="1000" logicalName="ControlStateReport">
+        <ReportVariable id="1001" varType="StatusVariable" logicalName="ProcessState" />
+      </RPTID>
+      <RPTID id="2000" logicalName="ProcessStateReport" />
+    </RPTIDs>
+    <CEIDs>
+      <CEID id="2000" logicalName="TransferArmStateChanged">
+        <RPTID id="100" logicalName="TransferArmStateReport">
+          <ReportVariable id="200" varType="StatusVariable" logicalName="RobotHome" />
+          <ReportVariable id="201" varType="StatusVariable" logicalName="Potential Energy" />
+          <ReportVariable id="202" varType="StatusVariable" logicalName="ControlState" />
+          <ReportVariable id="203" varType="StatusVariable" logicalName="FaradayPosition" />
+          <ReportVariable id="204" varType="StatusVariable" logicalName="TransferRobotState" />
+        </RPTID>
+      </CEID>
+      <CEID id="2001" logicalName="MaterialArrived">
+        <RPTID id="101" logicalName="MaterialReport">
+          <ReportVariable id="205" varType="StatusVariable" logicalName="MaterialID" />
+          <ReportVariable id="207" varType="StatusVariable" logicalName="ProcessState" />
+        </RPTID>
+      </CEID>
+      <CEID id="2002" logicalName="ProcessCompleted">
+        <RPTID id="102" logicalName="MaterialCompleted" />
+      </CEID>
+      <CEID id="2003" logicalName="EquipmentStarted">
+        <RPTID id="1000" logicalName="ControlStateReport">
+          <ReportVariable id="1001" varType="StatusVariable" logicalName="ProcessState" />
+          <ReportVariable id="1002" varType="StatusVariable" logicalName="ControlState" />
+          <ReportVariable id="3001" varType="EquipmentConstant" logicalName="Inkless Mode" />
+        </RPTID>
+        <RPTID id="2000" logicalName="ProcessStateReport" />
+      </CEID>
+    </CEIDs>
+  </DataCollections>
+  <Alarms>
+    <ALID id="1000" logicalName="MotionError" description="This error occur when the transporter arm is not initialized properly" />
+    <ALID id="1001" logicalName="OutputIndexerError" description="Machine failed to kick out the substrate to the output magazine" />
+    <ALID id="1002" logicalName="MotorError" description="Motor Error" />
+  </Alarms>
+</Equipment>

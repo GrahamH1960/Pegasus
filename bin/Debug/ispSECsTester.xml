@@ -1,0 +1,340 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>QuickStartApplication</name>
+    </assembly>
+    <members>
+        <member name="T:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample">
+            <summary>
+            Summary description for Form1.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdAreYouThere_Click(System.Object,System.EventArgs)">
+            <summary>
+            S1F1 Are You There
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdSVRequest1_Click(System.Object,System.EventArgs)">
+            <summary>
+            S1F3 Query All SVs
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdSVRequest2_Click(System.Object,System.EventArgs)">
+            <summary>
+            S1F3 Query specified SVs
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdSVNamelist1_Click(System.Object,System.EventArgs)">
+            <summary>
+            S1F11 Select all SV Namelist
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdSVNamelist2_Click(System.Object,System.EventArgs)">
+            <summary>
+            S1F11 Select specified SVs Namelist
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdEstComm_Click(System.Object,System.EventArgs)">
+            <summary>
+            S1F13 Establish Communication
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdOffline_Click(System.Object,System.EventArgs)">
+            <summary>
+            S1F15
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdOnline_Click(System.Object,System.EventArgs)">
+            <summary>
+            S1F17
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.HandleAreYouThereReply(Insphere.SecsToTool.Common.SECsMessage)">
+            <summary>
+            Handle S1F1 reply from equipment
+            </summary>
+            <param name="output">
+            	- MDLN
+            	- SOFTREV
+            </param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.HandleEquipmentSVReply(Insphere.SecsToTool.Common.SECsMessage)">
+            <summary>
+            Handle S1F3 (Equipment status variable value) reply from equipment
+            </summary>
+            <param name="output">List the current value of the selected SVs pre-defined in the equipment</param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.HandleEquipmentSVNamelistReply(Insphere.SecsToTool.Common.SECsMessage)">
+            <summary>
+            Handle S1F11 (Equipment status variable namelist value) reply from equipment
+            </summary>
+            <param name="output"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.HandleEstablishCommunicationReply(Insphere.SecsToTool.Common.SECsMessage)">
+            <summary>
+            Handle S1F13 (Establish communication) reply from equipment
+            </summary>
+            <param name="output">COMM ACK, MDLN, SOFTREV</param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.HandleEquipmentOffineReply(Insphere.SecsToTool.Common.SECsMessage)">
+            <summary>
+            Handle S1F15 (Request Offline) reply from equipment
+            </summary>
+            <param name="output"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.HandleEquipmentOnlineReply(Insphere.SecsToTool.Common.SECsMessage)">
+            <summary>
+            Handle S1F17 (Request Online) reply from equipment
+            </summary>
+            <param name="output"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdECQuery1_Click(System.Object,System.EventArgs)">
+            <summary>
+            S2F13 Query all ECs
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdECQuery2_Click(System.Object,System.EventArgs)">
+            <summary>
+            S2F13 Query specified ECs
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdNewEC_Click(System.Object,System.EventArgs)">
+            <summary>
+            S2F15 Set EC
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdDateTimeReq_Click(System.Object,System.EventArgs)">
+            <summary>
+            S2F17 Request date time
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdRemoteCommand_Click(System.Object,System.EventArgs)">
+            <summary>
+            S2F21 Remote Command
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdECNamelist1_Click(System.Object,System.EventArgs)">
+            <summary>
+            S2F29 Select all EC Namelist
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdECNamelist2_Click(System.Object,System.EventArgs)">
+            <summary>
+            S2F29 Select specified EC Namelist
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdDTSet_Click(System.Object,System.EventArgs)">
+            <summary>
+            S2F31 Set equipment date time
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdDeleteReports_Click(System.Object,System.EventArgs)">
+            <summary>
+            S2F33 Delete all reports and its link to CEID in the equipment
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdDefineReport_Click(System.Object,System.EventArgs)">
+            <summary>
+            S2F33 Define reports and variables associated to the report in the equipment
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdUnlinkEventReport_Click(System.Object,System.EventArgs)">
+            <summary>
+            S2F35 Delete the CEID and its associated reports in the equipment
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdLinkEventReport_Click(System.Object,System.EventArgs)">
+            <summary>
+            S2F35 Link reports to CEID
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdDisableEvent_Click(System.Object,System.EventArgs)">
+            <summary>
+            S2F37 Disable events
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdEnableEvent1_Click(System.Object,System.EventArgs)">
+            <summary>
+            S2F37 Enable events
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdHostCommand_Click(System.Object,System.EventArgs)">
+            <summary>
+            S2F41 Send Host command to equipment
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdEnableAllAlarm_Click(System.Object,System.EventArgs)">
+            <summary>
+            S5F3 Enable all alarms
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdEnableAlarm_Click(System.Object,System.EventArgs)">
+            <summary>
+            S5F3 Enable individual alarm
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdListAlarm_Click(System.Object,System.EventArgs)">
+            <summary>
+            S5F5 List specified alarms currently configured at the equipment
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdListEnabledAlarm_Click(System.Object,System.EventArgs)">
+            <summary>
+            S5F7 List all enabled alarms at the equipment
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdEventReportRequest_Click(System.Object,System.EventArgs)">
+            <summary>
+            S6F15 Request equipment to send the specified event
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.cmdPPSend_Click(System.Object,System.EventArgs)">
+            <summary>
+            Download unformatted recipe (binary) to equipment
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="T:DelInitializationExample">
+            <summary>
+            Declare a simple delegate to broadcast our message to subscriber.
+            </summary>
+        </member>
+        <member name="T:InitializationExample">
+            <summary>
+            This class provides the example for Host to perform Initialization to Equipment upon Establish Communication through S1F13.
+            This example provides user a guide of how to perform initialization using the Asynchronous Daisy Chain approach
+            </summary>
+        </member>
+        <member name="F:InitializationExample.InitializationChainContext">
+            <summary>
+            Declare a Daisy chain context
+            </summary>
+        </member>
+        <member name="F:InitializationExample.hostController">
+            <summary>
+            Declare the SECsHost object
+            </summary>
+        </member>
+        <member name="M:InitializationExample.#ctor">
+            <summary>
+            Constructor instance
+            </summary>
+        </member>
+        <member name="M:InitializationExample.StartInitialization">
+            <summary>
+            Start Initialization to the equipment
+            </summary>
+        </member>
+        <member name="M:InitializationExample.OnPrimaryIn(System.Object,Insphere.SecsToTool.Application.SECsPrimaryInEventArgs)">
+            <summary>
+            Equipment primary event handler
+            </summary>
+            <param name="sender">event sender</param>
+            <param name="e">event parameters</param>
+        </member>
+        <member name="E:InitializationExample.MessageIn">
+            <summary>
+            Declare a simple event to broadcast our activity
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.QuickStarts.Launcher">
+            <summary>
+            Summary description for Launcher.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.QuickStarts.Launcher.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.Launcher.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.Launcher.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="M:Insphere.SecsToTool.QuickStarts.Launcher.Main">
+            <summary>
+            The main entry point for the application.
+            </summary>
+        </member>
+    </members>
+</doc>

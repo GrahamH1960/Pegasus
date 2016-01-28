@@ -1,0 +1,17 @@
+C:\Users\132288\Documents\Visual Studio 2013\Projects\SecsToTool\QuickStart Samples\bin\Debug\QuickStartApplication.exe
+C:\Users\132288\Documents\Visual Studio 2013\Projects\SecsToTool\QuickStart Samples\bin\Debug\QuickStartApplication.pdb
+C:\Users\132288\Documents\Visual Studio 2013\Projects\SecsToTool\QuickStart Samples\bin\Debug\ispSECsTester.xml
+C:\Users\132288\Documents\Visual Studio 2013\Projects\SecsToTool\QuickStart Samples\bin\Debug\ispSECsDataItem.dll
+C:\Users\132288\Documents\Visual Studio 2013\Projects\SecsToTool\QuickStart Samples\bin\Debug\ispCoreModel.dll
+C:\Users\132288\Documents\Visual Studio 2013\Projects\SecsToTool\QuickStart Samples\bin\Debug\ispLicenseVerifier.dll
+C:\Users\132288\Documents\Visual Studio 2013\Projects\SecsToTool\QuickStart Samples\bin\Debug\ispSECsSerializer.dll
+C:\Users\132288\Documents\Visual Studio 2013\Projects\SecsToTool\QuickStart Samples\bin\Debug\ispSECsDataItem.xml
+C:\Users\132288\Documents\Visual Studio 2013\Projects\SecsToTool\QuickStart Samples\bin\Debug\ispSecsToTool.Net.xml
+C:\Users\132288\Documents\Visual Studio 2013\Projects\SecsToTool\QuickStart Samples\obj\Debug\QuickStartApplication.csprojResolveAssemblyReference.cache
+C:\Users\132288\Documents\Visual Studio 2013\Projects\SecsToTool\QuickStart Samples\obj\Debug\Insphere.SecsToTool.QuickStarts.AllStreamLibrarySample.resources
+C:\Users\132288\Documents\Visual Studio 2013\Projects\SecsToTool\QuickStart Samples\obj\Debug\Insphere.SecsToTool.QuickStarts.Launcher.resources
+C:\Users\132288\Documents\Visual Studio 2013\Projects\SecsToTool\QuickStart Samples\obj\Debug\QuickStartApplication.csproj.GenerateResource.Cache
+C:\Users\132288\Documents\Visual Studio 2013\Projects\SecsToTool\QuickStart Samples\obj\Debug\QuickStartApplication.exe
+C:\Users\132288\Documents\Visual Studio 2013\Projects\SecsToTool\QuickStart Samples\obj\Debug\QuickStartApplication.pdb
+E:\SecsToTool\QuickStart Samples\obj\Debug\QuickStartApplication.exe
+E:\SecsToTool\QuickStart Samples\obj\Debug\QuickStartApplication.pdb

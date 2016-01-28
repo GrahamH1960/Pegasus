@@ -1,0 +1,2585 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ispSecsToTool.Net</name>
+    </assembly>
+    <members>
+        <member name="T:Insphere.SecsToTool.Application.SECsBase">
+            <summary>
+            Base library for interfacing with SECS/GEM capable equipment
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SECsBase.SV">
+            <summary>
+            SV descriptive value
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SECsBase.EC">
+            <summary>
+            EC descriptive value
+            </summary>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.Initialize(System.String)">
+            <summary>
+            Initialize the Equipment Model by a specified equipmentModelPath.
+            </summary>
+            <param name="equipmentModelPath">The full xml file path of equipment model</param>
+            <exception cref="T:Insphere.SecsToTool.Common.SECsHostException">
+            Invalid xml file structure or Non compliant to the schema.
+            </exception>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		SECsHost secsHost;
+            		
+            		public static void Main() 
+            		{
+            			secsHost = new SECsHost();
+            			
+            			try {
+            				secsHost.Initialize(@"C:\Equipment.xml");
+            			} catch (SECsHostException shex) {
+            				MessageBox.Show(shex.Message);
+            			}
+            			
+            			if (secsHost.IsInitialized) {
+            				secsHost.SECsPrimaryIn +=new SECsPrimaryInEventHandler(secsHost_SECsPrimaryIn);
+            				secsHost.SECsSecondaryIn += new SECsSecondaryInEventHandler(secsHost_SECsSecondaryIn); 
+            				secsHost.SECsErrorNotification += new SECsErrorEventHandler(secsHost_SECsErrorNotification); 
+            			} else
+            				MessageBox.Show("secsHost is not initialized");
+            		}
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.FireCommunicationEvent(Insphere.SecsToTool.Application.PrimaryEventType)">
+            <summary>
+            Fire communication event from lower layer
+            </summary>
+            <param name="primaryEvent"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.FirePrimaryEvent(Insphere.SecsToTool.Application.PrimaryEventType,Insphere.SecsToTool.Common.SECsMessage,System.Int32)">
+            <summary>
+            Fire primary event from lower layer
+            </summary>
+            <param name="primaryEvent"></param>
+            <param name="inputs"></param>
+            <param name="transactionID"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.FireSecondaryEvent(Insphere.SecsToTool.Application.SecondaryEventType,Insphere.SecsToTool.Common.SECsTransaction)">
+            <summary>
+            Fire secondary reply from equipment
+            </summary>
+            <param name="secondaryEvent"></param>
+            <param name="transaction"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.FireErrorEvent(System.String,System.String,System.Int32)">
+            <summary>
+            Fire Error message
+            </summary>
+            <param name="message"></param>
+            <param name="source"></param>
+            <param name="transactionId"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.FireErrorEvent(System.String,System.String)">
+            <summary>
+            Fire Error message
+            </summary>
+            <param name="message"></param>
+            <param name="source"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.Connect">
+            <summary>
+            Open the HSMS communication port. Upon successfull connection, equipment will send a Primary event Connected to Host
+            </summary>
+            <remarks>
+            This method can only be invoked upon successfull initialization
+            </remarks>
+            <example>
+            <code>
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			if (secsHost.IsInitialized)
+            				secsHost.Connect();
+            		}
+            	}
+            	private void secsHost_SECsPrimaryIn(object sender, SECsPrimaryInEventArgs e) {
+            		switch(e.EventId) {
+            			case PrimaryEventType.Connected:
+            				MessageBox.Show("I am connected");
+            				// Now we can follow up by establishing communication with Equipment
+            				secsHost.<see cref="M:Insphere.SecsToTool.Application.SECsHost.EstablishCommunication">EstablishCommunication();</see>
+            				break;
+            		}
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.Disconnect">
+            <summary>
+            Close the HSMS communication port. Upon successfull disconnection, equipment will send a Primary event Disconnected to Host
+            </summary>
+            <example>
+            <code>
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			if (secsHost.IsInitialized)
+            				secsHost.Disconnect();
+            		}
+            	}
+            	private void secsHost_SECsPrimaryIn(object sender, SECsPrimaryInEventArgs e) {
+            		switch(e.EventId) {
+            			case PrimaryEventType.Disconnected:
+            				MessageBox.Show("I am disconnected");
+            				break;
+            		}
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.ProcessOutStream(Insphere.SecsToTool.Common.SECsTransaction)">
+            <summary>
+            Process output message to be sent to the SECS/GEM compiler
+            </summary>
+            <param name="transaction"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.ReplyOutStream(Insphere.SecsToTool.Common.SECsTransaction)">
+            <summary>
+            Reply output message to be sent to equipment
+            </summary>
+            <param name="transaction"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.DateTimeRequest">
+            <summary>
+            S2F17	(H->E, E->H)
+            This message allow host or equipment to request for its local date time setting.
+            </summary>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		
+            		public static void Main() 
+            		{
+            			secsHost.DateTimeRequest();
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.DateTimeReply:	//S1F1 Reply
+            				MessageBox.Show(e.Output.DataItem["TIME"].Value.ToString());
+            				break;
+            		}
+            	}
+            </code>
+            </example>
+            <remarks>When equipment request Host to send its current local date time settings, the system is automatically reply to equipment in the secondary message.</remarks>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.SendProcessProgram(System.String,System.Byte[])">
+            <summary>
+            S7F3	(H->E, E->H)
+            Send unformatted Process Program (Recipe) to Host/Equipment.
+            </summary>
+            <param name="ppid">Process Program Id</param>
+            <param name="ppbody">Process Program body content in binary format</param>
+            <remarks>
+            This method sending out the PPBODY in binary format. Settings in the SecsItemFormats.ppbody will not take effect.
+            Use SendProcessProgram(string ppid, object ppbody) if you want to send the PPBODY in other format as defined in the tool model.
+            </remarks>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		
+            		public static void Main() 
+            		{
+            			// Open Recipe2.prg file from the application local path.
+            			FileStream fs = new FileStream(@"Recipe2.prg", FileMode.Open, FileAccess.Read);
+            			// Create binary reader
+            			BinaryReader r = new BinaryReader(fs);
+            
+            			// Read the binary content of Recipe2.prg
+            			byte[] ppbody = r.ReadBytes((int)fs.Length);
+            
+            			// Send Recipe download to equipment
+            			secsHost.SendProcessProgram("TestRecipe", ppbody);
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.ProcessProgramSendReply:	// S7F3 Reply
+            				MessageBox.Show("Process Program Send Ack: " + e.Outputs.DataItem["ACKC7"].Value.ToString());
+            				break;
+            		}
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.SendProcessProgram(System.String,System.Object)">
+            <summary>
+            S7F3	(H->E, E->H)
+            Send unformatted Process Program (Recipe) to Host/Equipment.
+            </summary>
+            <param name="ppid">Process Program Id</param>
+            <param name="ppbody">Process Program body content in the format defined in the tool model</param>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.ProcessProgramRequest(System.String)">
+            <summary>
+            S7F5	(H->E)
+            This message is used to request the transfer of a process program.
+            </summary>
+            <param name="ppid">Process Program Id or Recipe Id</param>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		
+            		public static void Main() 
+            		{
+            			// Request equipment to upload the Process Program: "RecipeFromEquipment.prg"
+            			secsHost.ProcessProgramRequest("RecipeFromEquipment.prg");
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.ProcessProgramDataReply:	// S7F5 Reply
+            				HandleProcessProgramDataReply(e.Outputs);
+            				break;
+            		}
+            	}
+            
+            	private void HandleProcessProgramDataReply(SECsMessage outputs) {
+            		// Retrieve the PPID
+            		string ppid = outputs.DataItem["Ln"]["PPID"].Value.ToString();
+            
+            		// Check is the PPBODY format is binary, otherwise you need to use normal text stream writer.
+            		if (outputs.DataItem["Ln"]["PPBODY"].Format == SECsFormat.Binary) {
+            			// Create a binary writer to contain the Recipe body
+            			FileStream fs = new FileStream(ppid, FileMode.Create, FileAccess.Write);
+            		
+            			BinaryWriter w = new BinaryWriter(fs);
+            			// Write PPBODY to the file.
+            			w.Write((byte[])outputs.DataItem["Ln"]["PPBODY"].Value);
+            	
+            			w.Close();
+            			fs.Close();
+            		}
+            	} 
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.GetSECsMessage(System.Int32,System.Int32)">
+            <summary>
+            Get new SECS message
+            </summary>
+            <param name="streamId"></param>
+            <param name="functionId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.GetVariableFormat(System.String,Insphere.SecsToTool.Application.SECsBase.VariableType,System.String)">
+            <summary>
+            Get variable format
+            </summary>
+            <param name="id"></param>
+            <param name="varType"></param>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.GetItemValue(Insphere.SecsToTool.Common.SECsItem)">
+            <summary>
+            Get SECS Item value
+            </summary>
+            <param name="item"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.GetSvIdByLogicalName(System.String)">
+            <summary>
+            Get SVID by logical name
+            </summary>
+            <param name="logicalName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.GetEcIdByLogicalName(System.String,Insphere.SecsToTool.Common.SECsFormat@)">
+            <summary>
+            Get ECID by logical name
+            </summary>
+            <param name="logicalName"></param>
+            <param name="valueType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.GetDvIdByLogicalName(System.String)">
+            <summary>
+            Get DVID by logical name
+            </summary>
+            <param name="logicalName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.GetCeIdByLogicalName(System.String)">
+            <summary>
+            Get CEID by event logical name
+            </summary>
+            <param name="logicalName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.GetRcmdIdByLogicalName(System.String)">
+            <summary>
+            Get remote command Id by logical name
+            </summary>
+            <param name="logicalName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.GetHcmdIdByLogicalName(System.String)">
+            <summary>
+            Get Host command name by logical name
+            </summary>
+            <param name="logicalName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.GetAlarmIdByLogicalName(System.String)">
+            <summary>
+            Get alarm Id by alarm logical name
+            </summary>
+            <param name="logicalName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.GetAlarmLogicalName(System.String)">
+            <summary>
+            Get alarm logical name by alarmId specified.
+            </summary>
+            <param name="alarmId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.LookUpSvIdMappingValue(System.String,System.String)">
+            <summary>
+            Look up for SV mapping value
+            </summary>
+            <param name="svId"></param>
+            <param name="svValue"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.LookUpDvIdMappingValue(System.String,System.String)">
+            <summary>
+            Look up for DV mapping value
+            </summary>
+            <param name="dvId"></param>
+            <param name="dvValue"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.LookUpEcIdMappingValue(System.String,System.String)">
+            <summary>
+            Look up the EC mapping value
+            </summary>
+            <param name="ecId"></param>
+            <param name="ecValue"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.CreateTransaction(System.Boolean,System.Int32,System.Int32)">
+            <summary>
+            Create new SECS Transaction
+            </summary>
+            <param name="needReply">Indicate whether the message expect reply from equipment or not</param>
+            <param name="streamId">Stream Id</param>
+            <param name="functionId">Function Id</param>
+            <returns>New SECS transaction</returns>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsBase.GetDataId">
+            <summary>
+            Get the Data Id for event report
+            </summary>
+            <returns>New Data Id</returns>
+        </member>
+        <member name="E:Insphere.SecsToTool.Application.SECsBase.SECsPrimaryIn">
+            <summary>
+            Primary event initiated by Equipment. Equipment can automatically raise an event such as alarm occurrence (S5F1), Event Report(S6F11), etc to Host. 
+            </summary>
+        </member>
+        <member name="E:Insphere.SecsToTool.Application.SECsBase.SECsSecondaryIn">
+            <summary>
+            Secondary event replies from Equipment. When host initiates asynchronous message which requires a reply, Equipment's reply will be handled in this event
+            </summary>
+        </member>
+        <member name="E:Insphere.SecsToTool.Application.SECsBase.SECsHostError">
+            <summary>
+            Error event which does not raise an exception.
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsBase.Tag">
+            <summary>
+            Gets or sets transaction tag
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsBase.LogfilePath">
+            <summary>
+            Log file path. System will automatically generates the log file if the <see cref="P:Insphere.SecsToTool.Application.SECsBase.ActivateLogger">ActiveLogger</see> is set to true
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsBase.ActivateLogger">
+            <summary>
+            A boolean value to activate or deactivate the logging
+            </summary>
+            <value>true means Activate, false means Deactivate</value>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsBase.ToolModelXmlFile">
+            <summary>
+            Tool Model xml file generated by Equipment model builder. Specify the full path of the file during initialization
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsBase.EquipmentModel">
+            <summary>
+            Object tool model.
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsBase.SecsItemDictionary">
+            <summary>
+            Secs Item Format dictionary defined in the SecsToTool Model
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsBase.IsInitialized">
+            <summary>
+            A flag indicating whether the tool model has been initialized.
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Application.SECsBase.VariableType">
+            <summary>
+            Variable type
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SECsBase.VariableType.StatusVariable">
+            <summary>
+            Status variable
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SECsBase.VariableType.EquipmentConstant">
+            <summary>
+            Equipment constant
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SECsBase.VariableType.DataVariable">
+            <summary>
+            Data variables
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Application.SECsBase.SECsPrimaryInEventHandler">
+            <summary>
+            Delegate for handling Primary event raised by Equipment
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">A SECsPrimaryInEventArgs that contains the primary event data.</param>
+        </member>
+        <member name="T:Insphere.SecsToTool.Application.SECsBase.SECsSecondaryInEventHandler">
+            <summary>
+            Delegate for handling Secondary reply event sent by Equipment
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">A SECsSecondaryInEventArgs that contains the secondary event data.</param>
+        </member>
+        <member name="T:Insphere.SecsToTool.Application.SECsBase.SECsHostErrorHandler">
+            <summary>
+            Delegate for handling Error messages raised by compiler or invalid structure sent by equipment
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">A SECsHostErrorEventArgs that contains the error event data.</param>
+        </member>
+        <member name="T:Insphere.SecsToTool.Application.SECsFactory">
+            <summary>
+            SECsHost factory class. 
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Application.SECsHost">
+            <summary>
+            Host controller core library for interfacing with SECS/GEM capable equipment
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SECsHost.SECsNull">
+            <summary>
+            Null value. this value will be inserted for those zero length item sent by the equipment
+            </summary>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.AreYouThere">
+            <summary>
+            S1F1		(H->E, E->H)
+            Host sends asynchronous Are You There request. Reply from equipment
+            will be notified in the Secondary event. Testing
+            </summary>
+            <remarks>
+            When equipment requests for S1F1, system will automatically reply to equipment.
+            </remarks>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			secsHost.AreYouThere();
+            			
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.AreYouThereReply:	//S1F1 Reply
+            				HandleAreYouThereReply(e.Outputs);
+            				break;
+            		}
+            	}
+            	
+            	private void HandleAreYouThereReply(SECsMessage output) {
+            		StringBuilder msgOutput = new StringBuilder();
+            		
+            		// Retrieve the value of MDLN
+            		msgOutput.Append("MDLN: " + output.DataItem["Ln"]["MDLN"].Value + "\n");
+            		
+            		// Retrieve the value of SOFTREV
+            		msgOutput.Append("SOFTREV: " + output.DataItem["Ln"]["SOFTREV"].Value + "\n");
+            	}
+            	
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.EquipmentStatusVariables">
+            <summary>
+            S1F3		(H->E)
+            Host initiates Asynchronous select all equipment status variables.
+            </summary>
+            <remarks>
+            This method does not send an empty list as defined in SECS II, but it will select all
+            the list of SV as configured in the equipment model.
+            </remarks>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			secsHost.EquipmentStatusVariables();
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.EquipmentStatusVariablesReply:	//S1F3 Reply
+            				HandleEquipmentSVReply(e.Outputs);
+            				break;
+            		}
+            	}
+            	private void HandleEquipmentSVReply(SECsMessage output) {
+            		StringBuilder msgOutput = new StringBuilder();
+            
+            		// Retrieve all the SV's value
+            		for (int i=0; i 'less than' output.DataItem["Ln"].Count; i++) {
+            			if (output.DataItem["Ln"][i].Value.ToString()  != SECsHost.SECsNull)
+            				msgOutput.Append(output.DataItem["Ln"][i].Name + ": " + output.DataItem["Ln"][i].Value + "\n"); 
+            			else
+            				msgOutput.Append(output.DataItem["Ln"][i].Name + ": " + "Does not exist" + "\n"); 
+            		}
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.EquipmentStatusVariables(Insphere.SecsToTool.Common.SECsItem)">
+            <summary>
+            S1F3		(H-&gt;E)
+            Host initiates asynchronous select equipment status variables by a defined list.
+            
+            </summary>
+            <param name="svList">List of status variables to be selected
+            <note>
+            Notice that the we only add the logical name of the Status Variables to the svList.
+            System will automatically lookup for the actual SVID.
+            </note>
+            </param>
+            <exception cref="T:Insphere.SecsToTool.Common.SECsHostException">
+            Error will be raised if system could not find the mapping for the SVID in the model.
+            </exception>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			SECsItem svList = new SECsItem();
+            	
+            			// Add ProcessState variable to query the equipment. 
+            			svList.Add("ProcessState");
+            			
+            			secsHost.EquipmentStatusVariables(svList);
+            		}
+            	}
+            </code>
+            <code escaped="true">
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.EquipmentStatusVariablesReply:	//S1F3 Reply
+            				HandleEquipmentSVReply(e.Outputs);
+            				break;
+            		}
+            	}
+            	
+            	private void HandleEquipmentSVReply(SECsMessage output) {
+            		StringBuilder msgOutput = new StringBuilder();
+            
+            		// Retrieve all the SV's value
+            		for (int i=0; i 'less than' output.DataItem["Ln"].Count; i++) {
+            			if (output.DataItem["Ln"][i].Value.ToString()  != SECsHost.SECsNull)
+            				msgOutput.Append(output.DataItem["Ln"][i].Name + ": " + output.DataItem["Ln"][i].Value + "\n"); 
+            			else
+            				msgOutput.Append(output.DataItem["Ln"][i].Name + ": " + "Does not exist" + "\n"); 
+            		}
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.EquipmentStatusVariableNamelist">
+            <summary>
+            S1F11		(H->E)
+            Host sends asynchronous select all equipment status variables namelist.
+            </summary>
+            <remarks>
+            This method does not send an empty list as defined in SECS II, but it will select all
+            the list of SV as configured in the equipment model.
+            </remarks>
+            <example>
+            <code>
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			secsHost.EquipmentStatusVariableNamelist();
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.EquipmentStatusVariableNamelistReply: //S1F11 Reply
+            				HandleEquipmentSVNamelistReply(e.Outputs);
+            				break;
+            		}
+            	}
+            	
+            	private void HandleEquipmentSVNamelistReply(SECsMessage output) {
+            		StringBuilder msgOutput = new StringBuilder();
+            
+            		// Retrieve all the SV's namelist value
+            		for (int i=0; i 'less than' output.DataItem["Ln"].Count; i++) {
+            
+            			if ((output.DataItem["Ln"][i][1].Value.ToString()  == SECsHost.SECsNull) And (output.DataItem["Ln"][i][2].Value.ToString() == SECsHost.SECsNull)) {  
+            				msgOutput.Append(output.DataItem["Ln"][i][0].Name + ": " + "does not exist" + "\n"); 
+            				msgOutput.Append(output.DataItem["Ln"][i][1].Name + ": " + "does not exist" + "\n"); 
+            				msgOutput.Append(output.DataItem["Ln"][i][2].Name + ": " + "does not exist" + "\n"); 
+            				msgOutput.Append("---------------------------------------------------\n");
+            			}
+            			else {
+            				msgOutput.Append(output.DataItem["Ln"][i][0].Name + ": " + output.DataItem["Ln"][i][0].Value + "\n"); 
+            				msgOutput.Append(output.DataItem["Ln"][i][1].Name + ": " + output.DataItem["Ln"][i][1].Value + "\n"); 
+            				msgOutput.Append(output.DataItem["Ln"][i][2].Name + ": " + output.DataItem["Ln"][i][2].Value + "\n"); 
+            				msgOutput.Append("---------------------------------------------------\n");
+            			}
+            
+            		}
+            		MessageBox.Show(msgOutput.ToString());
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.EquipmentStatusVariableNamelist(Insphere.SecsToTool.Common.SECsItem)">
+            <summary>
+            S1F11		(H-&gt;E)
+            Select equipment status variables namelist by a defined list.
+            </summary>
+            <param name="svList">List of status variables
+            <note>
+            Notice that the we only add the logical name of the Status Variables to the svList.
+            System will automatically lookup for the actual SVID.
+            </note>
+            </param>
+            <exception cref="T:Insphere.SecsToTool.Common.SECsHostException">
+            Error will be raised if system could not find the mapping for the SVID in the model.
+            </exception>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			SECsItem svList = new SECsItem();
+            			
+            			// Add the ControlState (logical name) status variable to the svList
+            			svList.Add("ControlState");
+            			secsHost.EquipmentStatusVariableNamelist(svList); 
+            		}
+            	}
+            </code>
+            <code escaped="true">
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.EquipmentStatusVariableNamelistReply: //S1F11 Reply
+            				HandleEquipmentSVNamelistReply(e.Outputs);
+            				break;
+            		}
+            	}
+            	
+            	private void HandleEquipmentSVNamelistReply(SECsMessage output) {
+            		StringBuilder msgOutput = new StringBuilder();
+            
+            		// Retrieve all the SV's namelist value
+            		for (int i=0; i 'less than' output.DataItem["Ln"].Count; i++) {
+            
+            			if ((output.DataItem["Ln"][i][1].Value.ToString()  == SECsHost.SECsNull) And (output.DataItem["Ln"][i][2].Value.ToString()  == SECsHost.SECsNull)) {  
+            				msgOutput.Append(output.DataItem["Ln"][i][0].Name + ": " + "does not exist" + "\n"); 
+            				msgOutput.Append(output.DataItem["Ln"][i][1].Name + ": " + "does not exist" + "\n"); 
+            				msgOutput.Append(output.DataItem["Ln"][i][2].Name + ": " + "does not exist" + "\n"); 
+            				msgOutput.Append("---------------------------------------------------\n");
+            			}
+            			else {
+            				msgOutput.Append(output.DataItem["Ln"][i][0].Name + ": " + output.DataItem["Ln"][i][0].Value + "\n"); 
+            				msgOutput.Append(output.DataItem["Ln"][i][1].Name + ": " + output.DataItem["Ln"][i][1].Value + "\n"); 
+            				msgOutput.Append(output.DataItem["Ln"][i][2].Name + ": " + output.DataItem["Ln"][i][2].Value + "\n"); 
+            				msgOutput.Append("---------------------------------------------------\n");
+            			}
+            
+            		}
+            		MessageBox.Show(msgOutput.ToString());
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.EstablishCommunication">
+            <summary>
+            S1F13		(H->E)
+            Host initiates asynchronous establish communication request to equipment
+            </summary>
+            <example>
+            <code>
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			secsHost.EstablishCommunication();
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.EstablishCommunicationReply: //S1F13 Reply
+            				HandleEstablishCommunicationReply(e.Outputs);
+            				break;
+            		}
+            	}
+            	
+            	private void HandleEstablishCommunicationReply(SECsMessage output) {
+            		if (output.DataItem["Ln"]["COMMACK"].Value.ToString()  == "0") {
+            			StringBuilder msgOutput = new StringBuilder();
+            			msgOutput.Append("Establish Communication successfull\n");
+            			msgOutput.Append("MDLN: " + output.DataItem["Ln"]["Ln"]["MDLN"].Value + "\n"); 
+            			msgOutput.Append("SOFT REV " + output.DataItem["Ln"]["Ln"]["SOFTREV"].Value + "\n");
+            			MessageBox.Show(msgOutput.ToString());
+            		}
+            		else
+            			MessageBox.Show("Establish communication failed! Equipment acknowledge Non zero");
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.RequestOffline">
+            <summary>
+            S1F15		(H->E)
+            Host initiates asynchronous requests for equipment to go offline mode.
+            </summary>
+            <example>
+            <code>
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			secsHost.RequestOffline();
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.RequestOfflineReply: //S1F15 Reply
+            				HandleEquipmentOffineReply(e.Outputs);
+            				break;		
+            		}
+            	}
+            	
+            	private void HandleEquipmentOffineReply(SECsMessage output) {
+            		if (output.DataItem["OFLACK"].Value.ToString() == "0") {
+            			MessageBox.Show("Equipment Offline Request Successfull");
+            		}
+            		else {
+            			MessageBox.Show("Equipment Offline Requestt Unsuccessfull");
+            		}
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.RequestOnline">
+            <summary>
+            S1F17		(H->E)
+            Host initiates asynchronous request for equipment to go online mode
+            </summary>
+            <example>
+            <code>
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			secsHost.RequestOnline();
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.RequestOnlineReply: //S1F17 Reply
+            				HandleEquipmentOnlineReply(e.Outputs);
+            				break;		
+            		}
+            	}
+            	
+            	private void HandleEquipmentOnlineReply(SECsMessage output) {
+            		if (output.DataItem["ONLACK"].Value.ToString() == "0") {
+            			MessageBox.Show("Equipment Online Request Successfull");
+            		}
+            		else {
+            			MessageBox.Show("Equipment Online Requestt Unsuccessfull");
+            		}
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.EquipmentConstantListRequest">
+            <summary>
+            S2F13		(H->E)
+            Host initiates asynchronous query of all equipment constant
+            </summary>
+            <remarks>
+            This method does not send an empty list as defined in SECS II, but it will select all
+            the list of EC as configured in the equipment model.
+            </remarks>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			secsHost.EquipmentConstantListRequest();
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.EquipmentConstantListReply: // S2F13 Reply
+            				HandleEqupmentConstantListReply(e.Outputs);
+            				break;
+            		}
+            	}
+            	
+            	private void HandleEqupmentConstantListReply(SECsMessage output) {
+            		StringBuilder msgOutput = new StringBuilder();
+            		
+            		// Retrieve all the EC's value
+            		for (int i=0; i 'less than' output.DataItem["Ln"].Count; i++) {
+            			if (output.DataItem["Ln"][i].Value.ToString()  != SECsHost.SECsNull) 
+            				msgOutput.Append(output.DataItem["Ln"][i].Name + ": " + output.DataItem["Ln"][i].Value + "\n"); 
+            			else
+            				msgOutput.Append(output.DataItem["Ln"][i].Name + ": " + "does not exist" + "\n"); 
+            
+            		}
+            		MessageBox.Show(msgOutput.ToString());
+            
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.EquipmentConstantListRequest(Insphere.SecsToTool.Common.SECsItem)">
+            <summary>
+            S2F13		(H-&gt;E)
+            Host initiates asynchronous query of equipment constant by a defined list
+            </summary>
+            <param name="ecList">List of equipment constants to be selected.
+            <note>
+            Notice that the we only add the logical name of the Equipment Constant to the ecList.
+            System will automatically lookup for the actual ECID.
+            </note>
+            </param>
+            <example>
+            <exception cref="T:Insphere.SecsToTool.Common.SECsHostException">
+            Exception will be raised if system could not find the mapping for the ECID in the model.
+            </exception>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			SECsItem ecList = new SECsItem();
+            			ecList.Add("Inkless Mode"); // ECID=100
+            			ecList.Add("ProcessBinCode"); // ECID=101
+            
+            			// Query equipment constant list for equipment by a defined EC list
+            			secsHost.EquipmentConstantListRequest(ecList); 
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.EquipmentConstantListReply: // S2F13 Reply
+            				HandleEqupmentConstantListReply(e.Outputs);
+            				break;
+            		}
+            	}
+            	
+            	private void HandleEqupmentConstantListReply(SECsMessage output) {
+            		StringBuilder msgOutput = new StringBuilder();
+            		
+            		// Retrieve all the EC's value
+            		for (int i=0; i 'less than' output.DataItem["Ln"].Count; i++) {
+            			if (output.DataItem["Ln"][i].Value.ToString()  != SECsHost.SECsNull) 
+            				msgOutput.Append(output.DataItem["Ln"][i].Name + ": " + output.DataItem["Ln"][i].Value + "\n"); 
+            			else
+            				msgOutput.Append(output.DataItem["Ln"][i].Name + ": " + "does not exist" + "\n"); 
+            
+            		}
+            		MessageBox.Show(msgOutput.ToString());
+            
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.EquipmentConstantUpdate(Insphere.SecsToTool.Common.SECsItem)">
+            <summary>
+            S2F15		(H->E)
+            Host initiates asynchronous change one or more equipment constant
+            </summary>
+            <param name="ecList">List of equipment constants to be selected.
+            <note>
+            Notice that the we only add the logical name of the Equipment Constant to the ecList.
+            System will automatically lookup for the actual ECID.
+            </note>
+            </param>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			SECsItem ecList = new SECsItem();
+            			
+            			// Assume "Inkless Mode", ECID=100
+            			ecList.Add("Inkless Mode", "12"); // Assign ECID=100, Value=12
+            			
+            			// Assume "ProcessBinCode", ECID=101
+            			ecList.Add("ProcessBinCode", "323"); // Assign ECID=101, Value=323
+            			
+            			secsHost.EquipmentConstantUpdate(ecList); 
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.NewEquipmentConstantReply: // S2F15 Reply
+            				HandleEquipmentConstantUpdateReply(e.Outputs);
+            				break;
+            		}
+            	}
+            	
+            	private void HandleEquipmentConstantUpdateReply(SECsMessage output) {
+            
+            		if (output.DataItem["EAC"].Value.ToString() == "0") 
+            			MessageBox.Show("Equipment constant update successfully");
+            		else
+            			MessageBox.Show("Equipment constant update not successfull");
+            			
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.RemoteCommand(System.String)">
+            <summary>
+            S2F21		(H-&gt;E)
+            Host send remote command to equipment
+            </summary>
+            <param name="commandName">Name of the remote command
+            <note>
+            Notice that we only specify the logical name of the Remote Command.
+            System will automatically lookup for the actual RCMD in the model.
+            </note>
+            </param>
+            <exception cref="T:Insphere.SecsToTool.Common.SECsHostException">
+            Exception will be raised if Remote Command logical name specified can not be found in the tool model
+            </exception>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			secsHost.RemoteCommand("Start Equipment");
+            			<note>the actual RCMD Name defined in the equipment may be "START_EQP"</note>
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.RemoteCommandReply: // S2F21 Reply
+            				HandleRemoteCommandReply(e.Outputs);
+            				break;
+            		}
+            	}
+            	
+            	private void HandleRemoteCommandReply(SECsMessage output) {
+            		MessageBox.Show("Remote Command reply: " + output.DataItem["CMDA"].Value.ToString());
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.EquipmentConstantNamelist">
+            <summary>
+            S2F29		(H->E)
+            Host initiates asynchronous query of all equipment constant namelist
+            </summary>
+            <remarks>
+            This method does not send an empty list as defined in SECS II, but it will select all
+            the list of EC as configured in the equipment model.
+            </remarks>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			secsHost.EquipmentConstantNamelist();
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.EquipmentConstantNamelistReply:	// S2F29 Reply
+            				HandleEquipmentECNamelistReply(e.Outputs);
+            				break;
+            		}
+            	}
+            	
+            	private void HandleEquipmentECNamelistReply(SECsMessage output) {
+            		StringBuilder msgOutput = new StringBuilder();
+            		int index;
+            		
+            		// Retrieve all the EC's namelist value
+            		for (int i=0; i 'less than' output.DataItem["Ln"].Count; i++) {
+            
+            			if ((output.DataItem["Ln"][i][1].Value.ToString()  == SECsHost.SECsNull) And (output.DataItem["Ln"][i][2].Value.ToString()  == SECsHost.SECsNull) And (output.DataItem["Ln"][i][3].Value.ToString()  == SECsHost.SECsNull) And (output.DataItem["Ln"][i][4].Value.ToString()  == SECsHost.SECsNull) And (output.DataItem["Ln"][i][5].Value.ToString()  == SECsHost.SECsNull)) {  
+            				for (index = 0; index 'less than' 6; index++)
+            					msgOutput.Append(output.DataItem["Ln"][i][index].Name + ": " + "does not exist" + "\n"); 
+            			
+            				msgOutput.Append("---------------------------------------------------\n");
+            			}
+            			else {
+            				for (index = 0; index 'less than' 6; index++)
+            					msgOutput.Append(output.DataItem["Ln"][i][index].Name + ": " + output.DataItem["Ln"][i][index].Value + "\n"); 
+            		
+            				msgOutput.Append("---------------------------------------------------\n");
+            			}
+            		}
+            		MessageBox.Show(msgOutput.ToString());
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.EquipmentConstantNamelist(Insphere.SecsToTool.Common.SECsItem)">
+            <summary>
+            S2F29		(H-&gt;E)
+            Host asynchronous query equipment constant namelist by a defined list
+            </summary>
+            <param name="ecNameList">List of equipment constants namelist to be selected.
+            <note>
+            Notice that the we only add the logical name of the Equipment Constant to the ecNameList.
+            System will automatically lookup for the actual ECID.
+            </note>
+            </param>
+            <exception cref="T:Insphere.SecsToTool.Common.SECsHostException">
+            Exception will be raised if system could not find the mapping for the ECID in the model.
+            </exception>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			SECsItem ecList = new SECsItem();
+            			ecList.Add("Inkless Mode");
+            
+            			// Query equipment constant namelist by a defined EC list
+            			secsHost.EquipmentConstantNamelist(ecList); 
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.EquipmentConstantNamelistReply:	// S2F29 Reply
+            				HandleEquipmentECNamelistReply(e.Outputs);
+            				break;
+            		}
+            	}
+            	
+            	private void HandleEquipmentECNamelistReply(SECsMessage output) {
+            		StringBuilder msgOutput = new StringBuilder();
+            		int index;
+            		
+            		// Retrieve all the EC's namelist value
+            		for (int i=0; i 'less than' output.DataItem["Ln"].Count; i++) {
+            
+            			if ((output.DataItem["Ln"][i][1].Value.ToString()  == SECsHost.SECsNull) And (output.DataItem["Ln"][i][2].Value.ToString()  == SECsHost.SECsNull) And (output.DataItem["Ln"][i][3].Value.ToString()  == SECsHost.SECsNull) And (output.DataItem["Ln"][i][4].Value.ToString()  == SECsHost.SECsNull) And (output.DataItem["Ln"][i][5].Value.ToString()  == SECsHost.SECsNull)) {  
+            				for (index = 0; index 'less than' 6; index++)
+            					msgOutput.Append(output.DataItem["Ln"][i][index].Name + ": " + "does not exist" + "\n"); 
+            			
+            				msgOutput.Append("---------------------------------------------------\n");
+            			}
+            			else {
+            				for (index = 0; index 'less than' 6; index++)
+            					msgOutput.Append(output.DataItem["Ln"][i][index].Name + ": " + output.DataItem["Ln"][i][index].Value + "\n"); 
+            		
+            				msgOutput.Append("---------------------------------------------------\n");
+            			}
+            		}
+            		MessageBox.Show(msgOutput.ToString());
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.DateTimeSetRequest">
+            <summary>
+            S2F31		(H->E)
+            Host set equipment time with the current system date time value
+            </summary>
+            <remarks>
+            There are two type of format supported yyyymmddhhmmsscc or yymmddhhmmss.
+            This type can be configured in the model.
+            </remarks>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			secsHost.DateTimeSetRequest();
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.DateTimeSetReply: // S2F31 Reply
+            				HandleDateTimeSetReply(e.Outputs);
+            				break;
+            		}
+            	}
+            	
+            	private void HandleDateTimeSetReply(SECsMessage output) {
+            		if (output.DataItem["TIACK"].Value.ToString() == "0") 
+            			MessageBox.Show("Successfully set equipment time");
+            		else
+            			MessageBox.Show("Unsuccessfully set equipment time");
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.DateTimeSetRequest(System.DateTime)">
+            <summary>
+            S2F31		(H->E)
+            Host sets the equipment date time with user defined date time value
+            </summary>
+            <param name="dateTime">Date Time value to be synchronize with equipment</param>
+            <remarks>
+            There are two type of format supported yyyymmddhhmmsscc or yymmddhhmmss.
+            This type can be configured in the model.
+            </remarks>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			DateTime myDateTime = new DateTime(2004,2,21, 12, 45,12,2);
+            		
+            			secsHost.DateTimeSetRequest(myDateTime);
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.DateTimeSetReply: // S2F31 Reply
+            				HandleDateTimeSetReply(e.Outputs);
+            				break;
+            		}
+            	}
+            	
+            	private void HandleDateTimeSetReply(SECsMessage output) {
+            		if (output.DataItem["TIACK"].Value.ToString() == "0") 
+            			MessageBox.Show("Successfully set equipment time");
+            		else
+            			MessageBox.Show("Unsuccessfully set equipment time");
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.DefineReports(Insphere.SecsToTool.Application.DefineReportType)">
+            <summary>
+            S2F33		(H-&gt;E)
+            Host define a group of reports for the equipment
+            </summary>
+            <param name="defineReportType">Define Report Type:
+            <list type="bullet">
+            <item>
+            <term>DeleteReports</term>
+            <description>Delete all report type of RPTID. all CEID links to this report are also deleted</description>
+            </item>
+            <item>
+            <term>DefineReports</term>
+            <description>Define all reports and its associated variables for equipment</description>
+            </item>
+            </list>
+            </param>
+            <remarks>
+            When defining the reports, system will automatically based on the reports defined in the model to construct the list for equipment.
+            </remarks>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			// Delete all reports and variables associated to it in equipment
+            			secsHost.DefineReports(DefineReportType.DeleteReports);	
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.DeleteAllReportsReply:	// S2F33 Reply
+            				HandleDeleteAllReportReply(e.Outputs);
+            				break;
+            				
+            			case SecondaryEventType.DefineReportsReply:	// S2F33 Reply
+            				HandleDefineAllReportReply(e.Outputs);
+            				break;
+            		}
+            	}
+            	
+            	private void HandleDeleteAllReportReply(SECsMessage output) {
+            		// Check if Delete all report is accepted by equipment, follow up by defining report
+            		if (output.DataItem["DRACK"].Value.ToString() == "0") 
+            			secsHost.DefineReports(DefineReportType.DefineReports);
+            		else
+            			MessageBox.Show("Delete all report not accepted");
+            	}	
+            	
+            	private void HandleDefineAllReportReply(SECsMessage output) {
+            		if (output.DataItem["DRACK"].Value.ToString() == "0") 
+            			MessageBox.Show("Define report is accepted");
+            		
+            		else
+            			MessageBox.Show("Define report is not accepted");
+            	}
+            	<seealso cref="M:Insphere.SecsToTool.Application.SECsHost.LinkEventReport(Insphere.SecsToTool.Application.LinkEventReportType)"/>	
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.LinkEventReport(Insphere.SecsToTool.Application.LinkEventReportType)">
+            <summary>
+            S2F35		(H-&gt;E)
+            Host links a n number of reports to an event (CEID). These linked reports will be defaulted to 'disabled' upon linking.
+            </summary>
+            <param name="linkEventReportType">Link Event Report Types:
+            <list type="bullet">
+            <item>
+            <term>UnlinkEventReports</term>
+            <description>Deletes all report links to that event predefined by equipment</description>
+            </item>
+            <item>
+            <term>LinkEventReports</term>
+            <description>Links all the reports linked to that event as defined in the equipment model</description>
+            </item>
+            </list>
+            </param>
+            <remarks>
+            When linking the reports to event, system will automatically lookup all the Event and its associated reports defined in the model to construct the list for equipment.
+            </remarks>
+            <example>
+            <code>
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			// Delete all event reports associated to the CEID. Normally after successfully defining report, we will follow by calling this method.
+            			secsHost.LinkEventReport(LinkEventReportType.UnlinkEventReports); 
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.UnlinkEventReportsReply:	// S2F35 Reply
+            				HandleUnlinkEventReportReply(e.Outputs);
+            				break;
+            
+            			case SecondaryEventType.LinkEventReportsReply:	// S2F35 Reply
+            				HandleLinkEventReportReply(e.Outputs);
+            				break;
+            		}
+            	}
+            	
+            	private void HandleUnlinkEventReportReply(SECsMessage output) {
+            		// Check if delete event reports is accepted by equipment. If yes, follow up by linking the event report as defined in the model.
+            		if (output.DataItem["LRACK"].Value.ToString() == "0") 
+            			secsHost.LinkEventReport(LinkEventReportType.LinkEventReports); 
+            		else
+            			MessageBox.Show("Unlink event report is not accepted");
+            		}
+            	
+            	private void HandleLinkEventReportReply(SECsMessage output) {
+            		if (output.DataItem["LRACK"].Value.ToString() == "0") 
+            			MessageBox.Show("Link event report is accepted");
+            		else
+            			MessageBox.Show("Link event report is not accepted");
+            	}
+            	<seealso cref="M:Insphere.SecsToTool.Application.SECsHost.DefineReports(Insphere.SecsToTool.Application.DefineReportType)"/>	
+            	<seealso cref="M:Insphere.SecsToTool.Application.SECsHost.EnableEventReport(System.Boolean)"/>
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.EnableEventReport(System.Boolean)">
+            <summary>
+            S2F37		(H-&gt;E)
+            Host to enable reporting for a group of all events
+            </summary>
+            <param name="isEnabled">
+            <list type="bullet">
+            <item>
+            <term>true</term>
+            <description>Enable all event reports</description>
+            </item>
+            <item>
+            <term>false</term>
+            <description>Disable all event reports</description>
+            </item>
+            </list>
+            </param>
+            <example>
+            <code>
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			// to enable all event report from equipment
+            			secsHost.EnableEventReport(true);
+            			
+            			// to disable, simple call secsHost.EnableEventReport(false);
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.EnableEventReportReply: // S2F37 Reply Enable
+            				HandleEnableEventReportReply(e.Outputs);
+            				break;
+            
+            			case SecondaryEventType.DisableEventReportReply: // S2F37 Reply Disable
+            				HandleDisableEventReportReply(e.Outputs);
+            				break;
+            		}
+            	}
+            	
+            	private void HandleEnableEventReportReply(SECsMessage output) {
+            		if (output.DataItem["ERACK"].Value.ToString() == "0")
+            			MessageBox.Show("Successfully enable event report");
+            		else
+            			MessageBox.Show("Fail to enable event report");
+            	}
+            
+            	private void HandleDisableEventReportReply(SECsMessage output) {
+            		if (output.DataItem["ERACK"].Value.ToString() == "0")
+            			MessageBox.Show("Successfully disable event report");
+            		else
+            			MessageBox.Show("Fail to disable event report");
+            	}
+            	<seealso cref="M:Insphere.SecsToTool.Application.SECsHost.DefineReports(Insphere.SecsToTool.Application.DefineReportType)"/>	
+            	<seealso cref="M:Insphere.SecsToTool.Application.SECsHost.LinkEventReport(Insphere.SecsToTool.Application.LinkEventReportType)"/>
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.EnableEventReport(Insphere.SecsToTool.Common.SECsItem,System.Boolean)">
+            <summary>
+            S2F37		(H-&gt;E)
+            Host to enable reporting for a group of events by a user defined list
+            </summary>
+            <param name="eventList">List of events to be enabled/disabled
+            <param name="isEnabled">
+            <list type="bullet">
+            <item>
+            <term>true</term>
+            <description>Enable all event reports</description>
+            </item>
+            <item>
+            <term>false</term>
+            <description>Disable all event reports</description>
+            </item>
+            </list>
+            </param>
+            <note>Only add the logical name of the event to the eventList. System will automatically lookup for the actual CEID to be sent to equipment in the model</note>
+            </param>
+            <exception cref="T:Insphere.SecsToTool.Common.SECsHostException">
+            Exception will be raised if any of the event logical name specified could not be found in the tool model
+            </exception>
+            <example>
+            <code>
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			SECsItem eventList =  new SECsItem();
+            			// Add events to be enabled
+            			// Add logical name of the CEID
+            			eventList.Add("EquipmentStarted");
+            			eventList.Add("EquipmentStopped");
+            
+            			// Enable events
+            			secsHost.EnableEventReport(eventList, true); 
+            
+            			// alternatively you can invoke the following method 
+            			// to enable all event report from equipment
+            			// secsHost.EnableEventReport(true);
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.EnableEventReportReply: // S2F37 Reply Enable
+            				HandleEnableEventReportReply(e.Outputs);
+            				break;
+            
+            			case SecondaryEventType.DisableEventReportReply: // S2F37 Reply Disable
+            				HandleDisableEventReportReply(e.Outputs);
+            				break;
+            		}
+            	}
+            	
+            	private void HandleEnableEventReportReply(SECsMessage output) {
+            		if (output.DataItem["ERACK"].Value.ToString() == "0")
+            			MessageBox.Show("Successfully enable event report");
+            		else
+            			MessageBox.Show("Fail to enable event report");
+            	}
+            
+            	private void HandleDisableEventReportReply(SECsMessage output) {
+            		if (output.DataItem["ERACK"].Value.ToString() == "0")
+            			MessageBox.Show("Successfully disable event report");
+            		else
+            			MessageBox.Show("Fail to disable event report");
+            	}
+            	<seealso cref="M:Insphere.SecsToTool.Application.SECsHost.DefineReports(Insphere.SecsToTool.Application.DefineReportType)"/>	
+            	<seealso cref="M:Insphere.SecsToTool.Application.SECsHost.LinkEventReport(Insphere.SecsToTool.Application.LinkEventReportType)"/>
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.HostCommand(System.String,Insphere.SecsToTool.Common.SECsItem)">
+            <summary>
+            S2F41		(E-&gt;H)
+            Host requests the equipment to perform the specified remote command with the associated parameters
+            </summary>
+            <param name="commandName">Logical name of the host command</param>
+            <param name="commandParameters">List of parameters for the host command</param>
+            <exception cref="T:Insphere.SecsToTool.Common.SECsHostException">
+            Exception will be raised if the logical name of the host command could not be found in the tool model.
+            </exception>
+            <example>
+            <code>
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			// Get parameters of the host command by specifying the command logical name
+            			SECsItem parameters = secsHost.QueryHostCommandParameters("StartEquipment");
+            
+            			// Initializing the paramaters value
+            			parameters["EquipmentId"].Value = "Eqp_0001";
+            			parameters["StartQty"].Value = "1000";
+            
+            			// send host command by specifying the command logical name and parameters
+            			secsHost.HostCommand("StartEquipment", parameters);
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.HostCommandReply:	// S2F41 Reply
+            				HandleHostCommandReply(e.Outputs);
+            				break;
+            		}
+            	}
+            	
+            	private void HandleHostCommandReply(SECsMessage output) {
+            		if (output.DataItem["Ln"]["HACK"].Value.ToString() == "0") {
+            			MessageBox.Show("Successfully sent host command to equipment");
+            		} else {
+            			StringBuilder msgOutput = new StringBuilder();
+            			msgOutput.Append("HACK" + output.DataItem["Ln"]["HACK"].Value + "\n");
+            			msgOutput.Append("List of negative ack parameters\n");
+            
+            			for (int i=0; i 'less than' output.DataItem["Ln"]["Ln"].Count; i ++) {
+            				msgOutput.Append(output.DataItem["Ln"]["Ln"][i][0].Name + ": " + output.DataItem["Ln"]["Ln"][i][0].Value + "\n");
+            				msgOutput.Append(output.DataItem["Ln"]["Ln"][i][1].Name + ": " + output.DataItem["Ln"]["Ln"][i][1].Value + "\n");
+            			}
+            			MessageBox.Show(msgOutput.ToString());
+            		}
+            	}
+            	<seealso cref="M:Insphere.SecsToTool.Application.SECsHost.QueryHostCommandParameters(System.String)"/>	
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.EnableAlarm(System.Boolean)">
+            <summary>
+            S5F3		(H->E)
+            This function will change the state	of the enable bit of all alarms in the equipment. The enable bit determines if the alarm will be sent to the Host.
+            </summary>
+            <param name="isToEnable">
+            <list type="bullet">
+            <item>
+            <term>true</term>
+            <description>Enable all alarms</description>
+            </item>
+            <item>
+            <term>false</term>
+            <description>Disable all alarms</description>
+            </item>
+            </list>
+            </param>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			// this will disable all alarms configured in the equipment
+            			secsHost.EnableAlarm(false);
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.DisableAlarmReportReply:	// S5F3 Reply
+            				HandleDisableAlarmReportReply(e.Outputs);
+            				break;
+            
+            			case SecondaryEventType.EnableAlarmReportReply:		// S5F3 Reply
+            				HandleEnableAlarmReportReply(e.Outputs);
+            				break;
+            
+            		}
+            	}
+            	
+            	private void HandleDisableAlarmReportReply(SECsMessage output) {
+            		if (output.DataItem["ACKC5"].Value.ToString() == "0")
+            			// after disable all alarm pre-configured at equipment, we can now enable all our alarms as defined in the model
+            			secsHost.EnableAlarm(true);
+            		else
+            			MessageBox.Show("Disable Alarms is not accepted by equipment");
+            	}
+            
+            	private void HandleEnableAlarmReportReply(SECsMessage output) {
+            		if (output.DataItem["ACKC5"].Value.ToString() == "0")
+            			MessageBox.Show("Enable Alarms accepted by equipment");
+            		else
+            			MessageBox.Show("Enable Alarms is not accepted by equipment");
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.EnableAlarm(System.String,System.Boolean)">
+            <summary>
+            S5F3		(H-&gt;E)
+            This function will change the state	of the enable bit of the alarm in the equipment. The enable bit determines if the alarm will be sent to the Host.
+            </summary>
+            <param name="alarm">Logical name of the alarm
+            <note>Only add the logical name of the alarm to be enabled. System will automatically lookup for the actual ALID to be sent to equipment in the model</note>
+            </param>
+            <param name="isToEnable">
+            <list type="bullet">
+            <item>
+            <term>true</term>
+            <description>Enable the requested alarm</description>
+            </item>
+            <item>
+            <term>false</term>
+            <description>Disable the requested alarm</description>
+            </item>
+            </list>
+            </param>
+            <exception cref="T:Insphere.SecsToTool.Common.SECsHostException">
+            Exception will be raised if the request alarm logical name could not be found in the tool model.
+            </exception>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			// Enable individual alarm by the logical name
+            			secsHost.EnableAlarm("MotorError", true); // the actual ALID for this maybe e.g.: 50001
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.DisableAlarmReportReply:	// S5F3 Reply
+            				HandleDisableAlarmReportReply(e.Outputs);
+            				break;
+            
+            			case SecondaryEventType.EnableAlarmReportReply:		// S5F3 Reply
+            				HandleEnableAlarmReportReply(e.Outputs);
+            				break;
+            
+            		}
+            	}
+            	
+            	private void HandleDisableAlarmReportReply(SECsMessage output) {
+            		if (output.DataItem["ACKC5"].Value.ToString() == "0")
+            			// after disable all alarm pre-configured at equipment, we can now enable all our alarms as defined in the model
+            			secsHost.EnableAlarm(true);
+            		else
+            			MessageBox.Show("Disable Alarms is not accepted by equipment");
+            	}
+            
+            	private void HandleEnableAlarmReportReply(SECsMessage output) {
+            		if (output.DataItem["ACKC5"].Value.ToString() == "0")
+            			MessageBox.Show("Enable Alarms accepted by equipment");
+            		else
+            			MessageBox.Show("Enable Alarms is not accepted by equipment");
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.ListAlarms">
+            <summary>
+            S5F5		(H->E)
+            List all possible alarms regardless of the state of ALED.
+            This method does not do mapping to the equipment model definition
+            </summary>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			secsHost.ListAlarms();
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.ListAlarmsReply:	// S5F5 Reply
+            				HandleListAlarmsReply(e.Outputs);
+            				break;
+            
+            		}
+            	}
+            	
+            	private void HandleListAlarmsReply(SECsMessage output) {
+            		StringBuilder sb = new StringBuilder();
+            
+            		for (int i=0; i 'less than' output.DataItem[0].Count; i++) {
+            			sb.Append("Alarm Category: " + output.DataItem[0][i]["ALCD"].Value.ToString() + "\n");
+            			sb.Append("Alarm Category Description: " + output.DataItem[0][i]["ALCDESC"].Value.ToString() + "\n");
+            			sb.Append("Alarm Id: " + output.DataItem[0][i]["ALID"].Value.ToString() + "\n");
+            			sb.Append("Alarm Description: " + output.DataItem[0][i]["ALTX"].Value.ToString() + "\n");
+            			sb.Append("---------------------------------------------------\n");
+            		}
+            
+            		MessageBox.Show(sb.ToString());
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.ListAlarms(Insphere.SecsToTool.Common.SECsItem)">
+            <summary>
+            S5F5		(H-&gt;E)
+            List alarms of the requested alList regardless of the state of the ALED
+            This method does not do mapping to the equipment model definition
+            </summary>
+            <param name="alList"> List of alarms to query to the equipment.
+            <note>Because this method does not lookup any mapping in the model, you must add the actual ALID to the alList</note>
+            </param>
+            <exception cref="T:Insphere.SecsToTool.Common.SECsHostException">
+            Exception will be raised if the ALID value specified is not valid for the alid format type configured in the model
+            </exception>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			SECsItem alList = new SECsItem();
+            
+            			// Add the actual ALID to query the alarm details configured in the equipment
+            			alList.Add("5001"); 
+            
+            			secsHost.ListAlarms(alList);
+            
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.ListAlarmsReply:	// S5F5 Reply
+            				HandleListAlarmsReply(e.Outputs);
+            				break;
+            
+            		}
+            	}
+            	
+            	private void HandleListAlarmsReply(SECsMessage output) {
+            		StringBuilder sb = new StringBuilder();
+            
+            		for (int i=0; i 'less than' output.DataItem[0].Count; i++) {
+            			sb.Append("Alarm Category: " + output.DataItem[0][i]["ALCD"].Value.ToString() + "\n");
+            			sb.Append("Alarm Category Description: " + output.DataItem[0][i]["ALCDESC"].Value.ToString() + "\n");
+            			sb.Append("Alarm Id: " + output.DataItem[0][i]["ALID"].Value.ToString() + "\n");
+            			sb.Append("Alarm Description: " + output.DataItem[0][i]["ALTX"].Value.ToString() + "\n");
+            			sb.Append("---------------------------------------------------\n");
+            		}
+            
+            		MessageBox.Show(sb.ToString());
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.ListEnabledAlarms">
+            <summary>
+            S5F7		(H->E)
+            List all enabled alarms. This method does not do mapping to the equipment model definition
+            </summary>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			// List all enabled alarms configured in the equipment.
+            			secsHost.ListEnabledAlarms();
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.ListEnabledAlarmsReply:		// S5F7 Reply
+            				HandleListEnabledAlarmReply(e.Outputs);
+            				break;
+            
+            		}
+            	}
+            	
+            	private void HandleListEnabledAlarmReply(SECsMessage output) {
+            		StringBuilder sb = new StringBuilder();
+            
+            		for (int i=0; i 'less than' output.DataItem[0].Count; i++) {
+            			sb.Append("Alarm Category: " + output.DataItem[0][i]["ALCD"].Value.ToString() + "\n");
+            			sb.Append("Alarm Category Description: " + output.DataItem[0][i]["ALCDESC"].Value.ToString() + "\n");
+            			sb.Append("Alarm Id: " + output.DataItem[0][i]["ALID"].Value.ToString() + "\n");
+            			sb.Append("Alarm Description: " + output.DataItem[0][i]["ALTX"].Value.ToString() + "\n");
+            			sb.Append("---------------------------------------------------\n");
+            		}
+            
+            		MessageBox.Show(sb.ToString());
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.EventReportRequest(System.String)">
+            <summary>
+            S6F15		(H-&gt;E)
+            Request equipment to send the event report
+            </summary>
+            <param name="eventName">logical name of the event as configured in the model
+            <note>Only specify the logical name of the event to eventName. System will automatically lookup for the actual CEID to be sent to equipment in the model</note>
+            </param>
+            <exception cref="T:Insphere.SecsToTool.Common.SECsHostException">
+            Exception raised when requested event is not defined in the model! Thread aborted
+            </exception>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			// Request equipment to send the event report by specifying the logical event name
+            			// as defined in the model.
+            			secsHost.EventReportRequest("EquipmentStarted"); 
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.EventReportReply:		// S6F15 Reply
+            				HandleEventReportReply(e.Outputs);
+            				break;
+            
+            		}
+            	}
+            	
+            	private void HandleEventReportReply(SECsMessage output) {
+            		MessageBox.Show(GetEventReportBody(output));
+            		
+            	}
+            
+            	private string GetEventReportBody(SECsMessage output) {
+            		StringBuilder sb = new StringBuilder();
+            		sb.Append("Event (CEID): " + output.DataItem["Ln"]["CEID"].Value.ToString() + "\n");
+            		sb.Append("---------------------------\n");
+            		sb.Append("Report(s)");
+            		for (int i=0; i 'less than' output.DataItem["Ln"]["Ln"].Count; i++) {
+            			// Retrieve Report ID
+            			sb.Append("\t Rpt ID: " + output.DataItem["Ln"]["Ln"][i][0].Value.ToString() + "\n");
+            			
+            			// Retrieve Report variables
+            
+            			for (int j=0; j 'less than' output.DataItem["Ln"]["Ln"][i][1].Count; j++) {
+            				sb.Append("\t\t " + output.DataItem["Ln"]["Ln"][i][1][j].Name + ": " + output.DataItem["Ln"]["Ln"][i][1][j].Value.ToString() + "\n");
+            			}
+            		}
+            
+            		return sb.ToString();
+            
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.DeleteProcessProgram">
+            <summary>
+            S7F17	(H->E)
+            Host request the equipment to delete all the process programs from the equipment storage.
+            </summary>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			// Request equipment to delete all Process Program in the storage
+            			secsHost.DeleteProcessProgram(ppList);
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.ProcessProgramDeleteAck:	// S7F18 Ack
+            				MessageBox.Show("Process Program Delete Ack: " + e.Outputs.DataItem["ACKC7"].Value.ToString()); 
+            				break;
+            		}
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.DeleteProcessProgram(Insphere.SecsToTool.Common.SECsItem)">
+            <summary>
+            S7F17	(H->E)
+            Host request the equipment to delete the process programs from the equipment storage in the specified ppList.
+            </summary>
+            <param name="ppList">List of PPID to be deleted</param>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			// Construct a list of PPID that we want equipment to delete
+            			SECsItem ppList = new SECsItem();
+            			ppList.Add("Recipe1.prg");
+            			ppList.Add("Recipe2.prg");
+            
+            			// Send out the Delete Recipe Message
+            			secsHost.DeleteProcessProgram(ppList);
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.ProcessProgramDeleteAck:	// S7F18 Ack
+            				MessageBox.Show("Process Program Delete Ack: " + e.Outputs.DataItem["ACKC7"].Value.ToString()); 
+            				break;
+            		}
+            	}
+            	
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.CurrentEPPDRequest">
+            <summary>
+            S7F19	(H->E)
+            Host requests the transmission of the current equipment process program directory (EPPD). This is a list of all PPIDs of the process programs stored in the equipment.
+            </summary>
+            <example>
+            <code escaped="true">
+            	class MyClass 
+            	{
+            		public static void Main() 
+            		{
+            			// Request equipment to send all the PPIDs from its directory
+            			secsHost.CurrentEPPDRequest();
+            		}
+            	}
+            </code>
+            <code>
+            	private void secsHost_SECsSecondaryIn(object sender, SECsSecondaryInEventArgs e) {
+            		switch (e.EventId) {
+            			case SecondaryEventType.CurrentEPPDReply:	// S7F20 Reply
+            				HandleCurrentEPPDReply(e.Outputs);
+            				break;
+            		}
+            	}
+            
+            	private void HandleCurrentEPPDReply(SECsMessage outputs) {
+            		StringBuilder sb = new StringBuilder();
+            
+            		sb.Append("List of PPIDs: \n");
+            		for (int i=0; i 'less than' outputs.DataItem["Ln"].Count; i++) {
+            			sb.Append(outputs.DataItem["Ln"][i].Value.ToString() + "\n");
+            		}
+            
+            		MessageBox.Show(sb.ToString());
+            	}
+            </code>
+            </example>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHost.QueryHostCommandParameters(System.String)">
+            <summary>
+            Get all the parameters for the Host command as defined in the model.
+            </summary>
+            <param name="commandName">Logical name of the host command</param>
+            <returns>SECsItem[parameterName]</returns>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsHost.EquipmentId">
+            <summary>
+            Equipment Identifier (Nameable)
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsHost.Alias">
+            <summary>
+            Equipment Alias (Nameable)
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsHost.Description">
+            <summary>
+            Equipment description (Nameable)
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsHost.Make">
+            <summary>
+            Equipment manufacturer name (Nameable)
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsHost.Model">
+            <summary>
+            Equipment model number (Nameable)
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsHost.Locator">
+            <summary>
+            Equipment locator. Specify the location/area name of the Equipment (Nameable)
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsHost.SoftwareRevision">
+            <summary>
+            Software revision of the current software installed in the Equipment (Nameable)
+            </summary>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsFactory.#ctor">
+            <summary>
+            SECsFactory constructor
+            </summary>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsFactory.CreateInstance">
+            <summary>
+            Create an instance of SECsHost class
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Insphere.SecsToTool.Application.SECsPrimaryInEventArgs">
+            <summary>
+            Arguments passed when the SECsPrimaryIn on SECsBase occurs.
+            </summary>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsPrimaryInEventArgs.#ctor(Insphere.SecsToTool.Application.PrimaryEventType)">
+            <summary>
+            Creates a SECsPrimaryInEventArgs object that contains the primary event type.
+            </summary>
+            <param name="primaryEventType">Primary event type raised by equipment</param>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsPrimaryInEventArgs.Inputs">
+            <summary>
+            Primary data sent by equipment. The structure of the data will depend on the event type
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsPrimaryInEventArgs.TransactionID">
+            <summary>
+            Transaction Id of the Primary message
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsPrimaryInEventArgs.EventId">
+            <summary>
+            Primary event type raised by equipment. See <see cref="T:Insphere.SecsToTool.Application.PrimaryEventType"/>
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Application.SECsSecondaryInEventArgs">
+            <summary>
+            Arguments passed when the SECsSecondaryIn on SECsBase occurs.
+            </summary>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsSecondaryInEventArgs.#ctor(Insphere.SecsToTool.Application.SecondaryEventType)">
+            <summary>
+            Creates a SECsSecondaryInEventArgs object that contains the secondary event type.
+            </summary>
+            <param name="secondaryEventType">Secondary event type sent by Equipment</param>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsSecondaryInEventArgs.Inputs">
+            <summary>
+            Input sent by Host. the structure will depend on the message sent out by Host
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsSecondaryInEventArgs.Outputs">
+            <summary>
+            Output/reply sent by Equipment. the structure will depend on the event type sent by equipment
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsSecondaryInEventArgs.TransactionID">
+            <summary>
+            Transaction Id of the message
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsSecondaryInEventArgs.Tag">
+            <summary>
+            Multi-purpose Tag
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsSecondaryInEventArgs.EventId">
+            <summary>
+            Secondary event type sent by Equipment. See <see cref="T:Insphere.SecsToTool.Application.SecondaryEventType"/>
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Application.SECsHostErrorEventArgs">
+            <summary>
+            Arguments passed when the SECsHostError on SECsBase occurs.
+            </summary>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHostErrorEventArgs.#ctor(System.String)">
+            <summary>
+            Creates a SECsHostErrorEventArgs object that contains the error message
+            </summary>
+            <param name="message">Error description</param>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHostErrorEventArgs.#ctor(System.String,System.String)">
+            <summary>
+            Creates a SECsHostErrorEventArgs object that contains the error message and source of the error
+            </summary>
+            <param name="message">Error description</param>
+            <param name="source">Source of the error</param>
+        </member>
+        <member name="M:Insphere.SecsToTool.Application.SECsHostErrorEventArgs.#ctor(System.String,System.String,System.Int32)">
+            <summary>
+            Creates a SECsHostErrorEventArgs object that contains the error message, source of the error and transaction Id
+            </summary>
+            <param name="message">Error description</param>
+            <param name="source">Source of the error</param>
+            <param name="transactionId">Transaction Id of the message</param>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsHostErrorEventArgs.TransactionId">
+            <summary>
+            Transaction Id of the message
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsHostErrorEventArgs.Message">
+            <summary>
+            Error description
+            </summary>
+        </member>
+        <member name="P:Insphere.SecsToTool.Application.SECsHostErrorEventArgs.Source">
+            <summary>
+            Source of the error
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Application.DefineReportType">
+            <summary>
+            Specify the action when <see cref="M:Insphere.SecsToTool.Application.SECsHost.DefineReports(Insphere.SecsToTool.Application.DefineReportType)">DefineReports</see> method is invoked
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.DefineReportType.DeleteReports">
+            <summary>
+            Delete all report type of RPTID. all CEID links to this report are also deleted
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.DefineReportType.DefineReports">
+            <summary>
+            Define all reports and its associated variables for equipment
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Application.LinkEventReportType">
+            <summary>
+            Specify the action when <see cref="M:Insphere.SecsToTool.Application.SECsHost.LinkEventReport(Insphere.SecsToTool.Application.LinkEventReportType)">LinkEventReport</see> method is invoked
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.LinkEventReportType.UnlinkEventReports">
+            <summary>
+            Deletes all report links to that event predefined by equipment
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.LinkEventReportType.LinkEventReports">
+            <summary>
+            Links all the reports linked to that event as defined in the equipment model
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Application.PrimaryEventType">
+            <summary>
+            Specify the primary event type when <see cref="E:Insphere.SecsToTool.Application.SECsBase.SECsPrimaryIn">SECsPrimaryIn</see> event is triggered.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.PrimaryEventType.Connected">
+            <summary>
+            Equipment communication port is successfully opened.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.PrimaryEventType.Disconnected">
+            <summary>
+            Equipment communication port is closed.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.PrimaryEventType.AreYouThereRequest">
+            <summary>
+            E->H (S1F1). Equipment initiates a Are You There request to Host
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.PrimaryEventType.EstablishCommunicationRequest">
+            <summary>
+            E->H (S1F13). Equipment requests host to establish the communication
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.PrimaryEventType.DateTimeRequest">
+            <summary>
+            E->H (S2F17). Equipment requests host to send its current date time
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.PrimaryEventType.AlarmSet">
+            <summary>
+            E->H (S5F1). Equipment sends an event to notify host that an error has occurred in the equipment
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.PrimaryEventType.AlarmCleared">
+            <summary>
+            E->H (S5F1). Equipment sends an event to notify host that the previously set alarm was cleared by operator
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.PrimaryEventType.EventReport">
+            <summary>
+            E->H (S6F11). Equipment sends an Event Report
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Application.SecondaryEventType">
+            <summary>
+            Specify the secondary event type when <see cref="E:Insphere.SecsToTool.Application.SECsBase.SECsSecondaryIn">SECsSecondaryIn</see> event is triggered.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.AreYouThereReply">
+            <summary>
+            E->H (S1F2). Are you there acknowledgement.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.EquipmentStatusVariablesReply">
+            <summary>
+            E->H (S1F4). Equipment replies the current value of the requested status variables.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.EquipmentStatusVariableNamelistReply">
+            <summary>
+            E->H (S1F12). The equipment replies to the host the name and units of the requested status variables.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.EstablishCommunicationReply">
+            <summary>
+            E->H (S1F14). establish communication acknowledgement.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.RequestOfflineReply">
+            <summary>
+            E->H (S1F16). Request offline acknowledgement.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.RequestOnlineReply">
+            <summary>
+            E->H (S1F18). Request online acknowledgement.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.EquipmentConstantListReply">
+            <summary>
+            E->H (S2F14). Data response to the Equipment Constant List in the order requested.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.NewEquipmentConstantReply">
+            <summary>
+            E->H (S2F16). Equipment acknowledge the equipment constant set by Host.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.DateTimeReply">
+            <summary>
+            E->H (S2F18). Equipment replies with its current date time.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.RemoteCommandReply">
+            <summary>
+            E->H (S2F20). Acknowledge Remote command or error.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.EquipmentConstantNamelistReply">
+            <summary>
+            E->H (S2F30). The equipment replies to the host the name, min, max, definition and units of the requested equipment constant.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.DateTimeSetReply">
+            <summary>
+            E->H (S2F32). Equipment acknowledge the receipt of time and date.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.DeleteAllReportsReply">
+            <summary>
+            E->H (S2F34). Equipment acknowledge the receipt of the delete reports and its links to CEID.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.DefineReportsReply">
+            <summary>
+            E->H (S2F34). Equipment acknowledge the receipt of the define reports and variables associated to the report.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.UnlinkEventReportsReply">
+            <summary>
+            E->H (S2F36). Equipment acknowledge the receipt of the delete all report links to that event.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.LinkEventReportsReply">
+            <summary>
+            E->H (S2F36). Equipment acknowledge the receipt of the linking of reports to that event.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.EnableEventReportReply">
+            <summary>
+            E->H (S2F38). Equipment acknowledge the receipt of the enable event report request.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.DisableEventReportReply">
+            <summary>
+            E->H (S2F38). Equipment acknowledge the receipt of the disable event report request.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.HostCommandReply">
+            <summary>
+            E->H (S2F42). Acknowledge Host command or error. If command is not accepted due to one or more invalid parameters. (i.e., HCACK=3), then a list of invalid parameters will be returned containing the parameter name and reason for being invalid.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.EnableAlarmReportReply">
+            <summary>
+            E->H (S5F4). Equipment acknowledge the receipt of the Enable of Alarm Report.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.DisableAlarmReportReply">
+            <summary>
+            E->H (S5F4). Equipment acknowledge the receipt of the Disable of Alarm Report.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.ListAlarmsReply">
+            <summary>
+            E->H (S5F6). Equipment replies the list of alarm data known to the equipment. 
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.ListEnabledAlarmsReply">
+            <summary>
+            E->H (S5F8). Equipment replies the list of alarm data that has been enabled.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.EventReportReply">
+            <summary>
+            E->H (S6F16). Equipment replies the reports linked to given CEID to host.
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.ProcessProgramSendReply">
+            <summary>
+            E->H, H->E (S7F4). Equipment/Host acknowledge the Process Program download
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.ProcessProgramDataReply">
+            <summary>
+            E->H, H->E (S7F6). Equipment/Host replies of the requested Process Program
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.ProcessProgramDeleteAck">
+            <summary>
+            E->H. Delete Process Program Acknowledgement
+            </summary>
+        </member>
+        <member name="F:Insphere.SecsToTool.Application.SecondaryEventType.CurrentEPPDReply">
+            <summary>
+            E->H. Replies from equipment with a list of PPID list from the directory
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Common.SECsDataArrivalEventHandler">
+            <summary>
+            Summary description for SECsEventArgs.
+            </summary>
+            
+        </member>
+        <member name="T:Insphere.SecsToTool.Common.SECsHostException">
+            <summary>
+            The SecsHost Main Exception
+            </summary>
+        </member>
+        <member name="M:Insphere.SecsToTool.Common.SECsHostException.#ctor">
+            <summary>
+            Overloaded. Default Constructor.
+            </summary>
+        </member>
+        <member name="M:Insphere.SecsToTool.Common.SECsHostException.#ctor(System.String)">
+            <summary>
+            Overloaded. Initializes a new SECsHostException with the specified message.
+            </summary>
+            <param name="msg">Exception message.</param>
+        </member>
+        <member name="M:Insphere.SecsToTool.Common.SECsHostException.#ctor(System.String,System.Exception)">
+            <summary>
+            Overloaded. Initializes a new SECsHostException with the specified message and inner exception.
+            </summary>
+            <param name="msg">Exception message.</param>
+            <param name="inner">Inner exception.</param>
+        </member>
+        <member name="T:Insphere.SecsToTool.Common.SECsLogger">
+            <summary>
+            Summary description for SECsLogger.
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Common.Interfaces.ICommCallback">
+            <summary>
+            Summary description for ICommCallback.
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Common.Interfaces.IEquipment">
+            <summary>
+            Summary description for IEquipment.
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Common.Interfaces.IHost">
+            <summary>
+            Summary description for IHost.
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Common.Interfaces.ISECsServer">
+            <summary>
+            Summary description for ISECsServer.
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Common.Interfaces.IStream">
+            <summary>
+            Summary description for IStream.
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Common.Interfaces.ITransaction">
+            <summary>
+            Summary description for ITransaction.
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Compiler.TransactionManager.SECsTimer">
+            <summary>
+            Summary description for SECsTimer.
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Compiler.TransactionManager.T3Manager">
+            <summary>
+            Summary description for T3Manager.
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Compiler.Protocols.SECsConnectionMode">
+            <summary>
+            Summary description for HSMSServer.
+            </summary>
+        </member>
+        <member name="M:Insphere.SecsToTool.Compiler.Protocols.HSMSServer.GetLengthByte(System.Int32)">
+            <summary>
+            This is function return the length byte according the SECS-II order
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Compiler.Protocols.SECsFactory">
+            <summary>
+            Summary description for SECsFactory.
+            </summary>
+        </member>
+        <member name="T:Insphere.SecsToTool.Compiler.Protocols.SECsHSMS">
+            <summary>
+            Summary description for HSMS.
+            </summary>
+        </member>
+        <member name="M:Insphere.SecsToTool.Compiler.Bits.#ctor(System.Byte[])">
+            <summary>
+            Initialize a new instance of this class from an array that is ordered in a human readable format.  
+            For example, if the input is:0x0B, 0x23, 0x84
+            0x0B = 0000 1011
+            0x23 = 0010 0011
+            0x84 = 1000 0100
+            Then the array of bits will contain 0000 1011 0010 0011 1000 0100
+            Note that the MSbit is actually at position 0 in the array (outer left)
+            </summary>
+            <param name="byteArray"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.Compiler.Bits.#ctor(System.UInt32,System.Int32)">
+            <summary>
+            Initialize a new instance of this class from an unsigned integer number.  
+            Since we may need only a few bits of the 32 bit integer number, the second 
+            parameter helps by specifying the number of useful bits to construct this class.
+            </summary>
+            <param name="data">Number that will be converted to bit array.</param>
+            <param name="numBits">Number of bits required to build an array of bits.</param>
+        </member>
+        <member name="M:Insphere.SecsToTool.Compiler.Bits.#ctor(System.Int32,System.Int32)">
+            <summary>
+            Initialize a new instance of this class from an integer number.  
+            Since we may need only a few bits of the 32 bit integer number, the second 
+            parameter helps by specifying the number of useful bits to construct this class.
+            </summary>
+            <param name="data">Number that will be converted to bit array.</param>
+            <param name="numBits">Number of bits required to build an array of bits.</param>
+        </member>
+        <member name="M:Insphere.SecsToTool.Compiler.Bits.#ctor(System.String)">
+            <summary>
+            Initialize a new instance of this class from a string that represents a binary number.
+            </summary>
+            <param name="data">String that contains a valid binary value.</param>
+        </member>
+        <member name="M:Insphere.SecsToTool.Compiler.Bits.#ctor(System.Boolean[])">
+            <summary>
+            Constructs this class by using another array of bits.
+            </summary>
+            <param name="boolBits"></param>
+        </member>
+        <member name="M:Insphere.SecsToTool.Compiler.Bits.ToUInt">
+            <summary>
+            Convert to unsigned integer.
+            </summary>
+            <returns>Unsigned integer that represents the binary value of this instance.</returns>
+        </member>
+        <member name="M:Insphere.SecsToTool.Compiler.Bits.ToInt">
+            <summary>
+            Convert to SIGNED integer.
+            </summary>
+            <returns>
+            SIGNED integer that represents the binary value of this instance.</returns>
+            <remarks>
+            This method uses two's complement method to convert convert from binary to signed integer number.
+            </remarks>
+        </member>
+        <member name="M:Insphere.SecsToTool.Compiler.Bits.ToBytes">
+            <summary>
+            Convert to bytes
+            </summary>
+            <returns>Byte array that represents the binary value of this instance.</returns>
+            <remarks>
+            The byte array contains Least Significant Bit first.
+            </remarks>
+        </member>
+        <member name="M:Insphere.SecsToTool.Compiler.Bits.ToString">
+            <summary>
+            Converts the binary value of this instance to a string representation that
+            follows a human readable convention (Least Significant Bit to farthest right).
+            </summary>
+            <returns>String that represents the binary value of this instance.</returns>
+        </member>
+        <member name="M:Insphere.SecsToTool.Compiler.Bits.ToBoolArray">
+            <summary>
+            Convert to array of boolean.
+            </summary>
+            <returns>Array of boolean that represents the binary number of this instance.</returns>
+            <remarks>The order of the bits in the array is: Least Significant Bit starts at 0 index position.</remarks>
+        </member>
+        <member name="M:Insphere.SecsToTool.Compiler.Bits.GetBits(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Extract bits from the specified location.  The position is calculated based on byte position,
+            bit position within that byte position, and number of bits.
+            Exact formula is as follows:
+            				From: (bytePosition + 1) * 8 - 1;
+            				  To: (bytePosition + 1) * 8 - (numBits + bitPosition);
+            </summary>
+            <param name="bytePosition">Byte position is indicated based on a human readable format.  
+            For example, if this instance contains 32 bits such as: 0xAABBCCDD then byte byte 2 will be
+            position of CC.</param>
+            <param name="bitPosition">Indicates the bit position with respect to the byte position.
+            For example, given 0xAABBCCDD and given byte 2 then byte 2 is 0xCC or 11001100 therefore,
+            a bit position of 0 is the least significant bit which is a zero in this case.</param>
+            <param name="numBits">The number of bits to get given a byte position, and bit position.
+            For example, given 0xAABBCCDD, byte position 2, bit position 3 and number of bits=4 then
+            the value returned will be 1001 (byte 2 = 11001100, then to get 4 bits from bit position
+            3 is: -1001--- the hyphens are the other bits that get removed.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Insphere.SecsToTool.Compiler.Bits.ValidBitString(System.String)">
+            <summary>
+            Verify that the string contains a valid sequence of bits.
+            </summary>
+            <param name="data">String representation of a binary number.</param>
+            <returns>True if all digits are binary.</returns>
+        </member>
+        <member name="M:Insphere.SecsToTool.Compiler.Bits.createArray(System.Byte[])">
+            <summary>
+            Create a sequence of binary bits from an array of bytes.
+            </summary>
+            <param name="byteArray">Array of bytes that will be converted to bits.</param>
+            <remarks>
+            The it array is created in a human readable format.  For example,
+            If we have an array such as AA BB CC DD, where AA is index 0 then the
+            bit array will contain 10101010 10111011 11001100 11011101, where left most bit is the zero index.
+            The representation of bits in this format makes it easy for string conversions.
+            </remarks>
+        </member>
+        <member name="T:Insphere.SecsToTool.Compiler.SType">
+            <summary>
+            Session Type Definition.
+            </summary>
+        </member>
+    </members>
+</doc>
